@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
@@ -9,18 +10,24 @@ const db = require('../models');
 const User = db.user;
 
 exports.signup = (req, res) => {
+  if (!req.body.username || !req.body.email || !req.body.password) {
+    return res
+      .status(422)
+      .send({ message: 'Email, username or password not provided!' });
+  }
+
   const user = new User({
     username: req.body.username,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8),
   });
 
-  user.save((err, userSaved) => {
+  user.save((err, user) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
-    res.send({ userSaved });
+    res.send({ user });
   });
 };
 
